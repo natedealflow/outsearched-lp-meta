@@ -193,7 +193,9 @@ p{margin:0}
 .dq .dq-title{font-family:var(--f-display);font-weight:600;font-size:26px;line-height:1.25;margin-bottom:16px}
 .cal{display:none}
 .cal.show{display:block}
-.cal .calendly-inline-widget{min-width:280px;height:700px}
+.cal .cal-inline{min-width:280px;height:700px;position:relative}
+.cal-loading{position:absolute;top:24px;left:0;right:0;text-align:center;font-size:15px;color:var(--sage-deep);margin:0}
+.cal-inline iframe{position:relative;z-index:1;background:transparent}
 .cal-note{padding:16px 14px 6px;font-size:15px;color:var(--navy)}
 
 /* stats */
@@ -295,7 +297,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
 """
 
-FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+FONTS = ('<link rel="preconnect" href="https://calendly.com"><link rel="preconnect" href="https://assets.calendly.com"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
          '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600&family=Source+Sans+3:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">')
 
 e = html.escape
@@ -335,7 +337,7 @@ def form_block(v):
           </div>
           <div class="{cal_cls}" id="cal">
             <p class="cal-note" id="cal-note">Pick a time for your free strategy call with Nate.</p>
-            <div class="calendly-inline-widget" id="cal-widget" data-base="{CALENDLY_ADS}"></div>
+            <div class="cal-inline" id="cal-widget" data-base="{CALENDLY_ADS}"><p class="cal-loading">Loading available times...</p></div>
           </div>
         </div>
         <div class="apply-foot">Your information stays private. We never share it.</div>
@@ -519,8 +521,10 @@ def page(v):
     keep.forEach(function(k){{ if(params.get(k)) u.searchParams.set(k, params.get(k)); }});
     if(!params.get('utm_term') && params.get('utm_keyword')) u.searchParams.set('utm_term', params.get('utm_keyword'));
     if(!params.get('utm_source')) u.searchParams.set('utm_source', cfg.source);
-    w.setAttribute('data-url', u.toString().replace(/\\+/g, '%20'));
-    var s = document.createElement('script'); s.src = 'https://assets.calendly.com/assets/external/widget.js'; s.async = true; document.body.appendChild(s);
+    var url = u.toString().replace(/\\+/g, '%20');
+    w.setAttribute('data-url', url);
+    // widget.js is loaded in the background when the page opens, so the calendar appears fast.
+    (function go(n){{ if(window.Calendly && Calendly.initInlineWidget){{ Calendly.initInlineWidget({{url: url, parentElement: w}}); }} else if(n < 100){{ setTimeout(function(){{ go(n+1); }}, 100); }} }})(0);
   }}
   // When the Tally form is submitted, qualified applicants get the Calendly ads event right here. Its redirect opens /confirmed/.
   window.addEventListener('message', function(ev){{
@@ -585,6 +589,7 @@ def page(v):
 }})(OS_CFG);
 </script>
 {tally_script}
+<script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 <script src="https://fast.wistia.com/player.js" async></script>
 <script src="https://fast.wistia.com/embed/{VID_HERO}.js" async type="module"></script>
 {''.join(f'<script src="https://fast.wistia.com/embed/{m}.js" async type="module"></script>' for m in VID_STEPS)}
