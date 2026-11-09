@@ -35,7 +35,7 @@ VARIANTS = {
 TRUSTPILOT = "https://www.trustpilot.com/review/outsearched.com"
 # GoHighLevel inbound webhook (OutSearched sub-account, workflow "Ad Landing Page Applications").
 GHL_WEBHOOK = "https://services.leadconnectorhq.com/hooks/TjwkkpfaWQx9DJtweeOi/webhook-trigger/d24abc95-4786-4294-9ffd-19852c658873"
-PRIVACY = "https://outsearched.com/privacy-policy/"
+PRIVACY = "/privacy/"  # outsearched.com has no privacy page, so each landing site hosts its own
 VID_HERO = "fxm9xo6025"
 VID_STEPS = ["jatmsfgp38", "ppv28v5kf9", "11xmvfv4v6"]
 
@@ -598,6 +598,81 @@ def page(v):
 """
 
 
+PRIVACY_SECTIONS = [
+    ("Who we are",
+     ["OutSearched, LLC (\"OutSearched\", \"we\") is a buy-side M&A deal origination firm based in Austin, TX. This policy covers this website and the application form on it."]),
+    ("What we collect",
+     ["When you apply, we collect what you enter: your name, email, phone number and your answers about timing, capital and budget.",
+      "When you book a call, our scheduling provider collects the details you enter there, such as your name, email, phone and answers to its questions.",
+      "When you visit, we and our advertising partners collect standard technical information through cookies and similar tools, such as pages viewed, the ad or link that brought you here (including campaign tags and click IDs), browser and device type, and approximate location from your IP address."]),
+    ("How we use it",
+     ["To review your application, contact you about it, schedule and hold your strategy call, and follow up with you by email, phone or text about our services.",
+      "To measure and improve our advertising and this website, including telling Google and Meta when someone applies or books a call so we can see which ads work."]),
+    ("Who we share it with",
+     ["We do not sell your personal information. We share it only with service providers that help us run this process: Tally (application form), Calendly (scheduling), GoHighLevel (our customer relationship system), Wistia (video), Google (Google Ads and Google Fonts), Meta (the Meta Pixel) and GitHub (website hosting). Each handles your information under its own privacy terms.",
+      "We may also share information if the law requires it, or as part of a sale or reorganization of our business."]),
+    ("Cookies and ad tracking",
+     ["This site uses the Google Ads tag and the Meta Pixel to measure ad results. You can block or delete cookies in your browser settings, opt out of personalized Google ads at adssettings.google.com, and manage Meta ad preferences in your Facebook or Instagram settings."]),
+    ("Texts and calls",
+     ["If you give us your phone number, we may call or text you about your application and your call. Message and data rates may apply. Reply STOP to any text to opt out."]),
+    ("How long we keep it",
+     ["We keep your information for as long as we need it for the purposes above or as required by law, then delete it."]),
+    ("Your choices",
+     ["You can ask us to access, correct or delete your personal information, or to stop contacting you, by emailing nate@outsearched.com. Depending on where you live, you may have additional rights under state law, and we will honor them."]),
+    ("Security",
+     ["We use reasonable measures to protect your information, but no method of sending or storing data is completely secure."]),
+    ("Changes and contact",
+     ["We may update this policy from time to time and will post the new version on this page. Questions: nate@outsearched.com, OutSearched, LLC, Austin, TX."]),
+]
+
+
+def privacy_page(v):
+    url = f"https://{v['domain']}/privacy/"
+    body = "".join(f"<h2>{e(h)}</h2>" + "".join(f"<p>{e(x)}</p>" for x in ps) for h, ps in PRIVACY_SECTIONS)
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacy policy | OutSearched</title>
+<meta name="description" content="How OutSearched collects and uses information on this website.">
+<link rel="canonical" href="{url}">
+<meta name="theme-color" content="#2E4058">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+{FONTS}
+<style>{CSS}
+.legal{{background:var(--white);padding:64px 0 80px}}
+.legal .wrap{{max-width:760px}}
+.legal h1{{font-size:clamp(32px,4vw,44px);margin:0 0 8px;color:var(--navy-900)}}
+.legal .upd{{color:var(--sage-deep);margin:0 0 32px}}
+.legal h2{{font-size:22px;margin:32px 0 10px;color:var(--navy-900)}}
+.legal p{{color:var(--graphite);line-height:1.65;margin:0 0 12px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a href="/"><img src="/assets/logo-reversed.png" alt="OutSearched, Origination &amp; Advisory" width="900" height="271"></a>
+    <a class="btn" href="/#apply">Book a call</a>
+  </div>
+</header>
+<main class="legal">
+  <div class="wrap">
+    <h1>Privacy policy</h1>
+    <p class="upd">Last updated November 9, 2026</p>
+    {body}
+  </div>
+</main>
+<footer>
+  <div class="wrap">
+    <img src="/assets/logo-reversed.png" alt="OutSearched" width="900" height="271" loading="lazy">
+    <div class="row"><span>&copy; 2026 OutSearched, LLC</span><span>Austin, TX</span><a href="/privacy/">Privacy policy</a><a href="https://outsearched.com/">outsearched.com</a></div>
+  </div>
+</footer>
+</body>
+</html>"""
+
+
 if __name__ == "__main__":
     for key, v in VARIANTS.items():
         dst = OUT[key]
@@ -608,6 +683,9 @@ if __name__ == "__main__":
             f.write(v["domain"] + "\n")
         open(os.path.join(dst, ".nojekyll"), "w").close()
         # Old ad links: Meta ads point at /schedule (and older /confirm pages). Serve the same page there.
+        os.makedirs(os.path.join(dst, "privacy"), exist_ok=True)
+        with open(os.path.join(dst, "privacy", "index.html"), "w") as f:
+            f.write(privacy_page(v))
         for sub in ["schedule"]:
             os.makedirs(os.path.join(dst, sub), exist_ok=True)
             with open(os.path.join(dst, sub, "index.html"), "w") as f:
