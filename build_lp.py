@@ -314,7 +314,7 @@ def form_block(v):
     tally = v["tally_form"]
     if tally:
         form = (f'<iframe data-tally-src="https://tally.so/embed/{tally}?hideTitle=1&transparentBackground=1&dynamicHeight=1&source={v["source"]}" '
-                'loading="lazy" width="100%" height="420" title="See if you qualify"></iframe>')
+                'width="100%" height="420" title="See if you qualify"></iframe>')
         cal_cls = "cal"
     else:
         form = ""
@@ -355,7 +355,9 @@ def page(v):
         </figure>""" for t, q, w, d in REVIEWS)
     faqs = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in FAQS)
     cfg = json.dumps({"source": v["source"], "googleAds": v["GOOGLE_ADS_ID"], "metaPixel": v["META_PIXEL_ID"], "tally": v["tally_form"], "ghl": GHL_WEBHOOK})
-    tally_script = '<script async src="https://tally.so/widgets/embed.js"></script>' if v["tally_form"] else ""
+    tally_script = ('<script>(function(){var w="https://tally.so/widgets/embed.js";var v=function(){if(typeof Tally!=="undefined"){Tally.loadEmbeds();}'
+                    'else{document.querySelectorAll("iframe[data-tally-src]:not([src])").forEach(function(e){e.src=e.dataset.tallySrc;});}};'
+                    'if(typeof Tally!=="undefined"){v();}else{var s=document.createElement("script");s.src=w;s.onload=v;s.onerror=v;document.body.appendChild(s);}})();</script>') if v["tally_form"] else ""
     url = f"https://{v['domain']}/"
     desc = "We find, contact and qualify off-market business owners that match your exact buy box. Your deal team is live in 21 days."
     return f"""<!doctype html>
