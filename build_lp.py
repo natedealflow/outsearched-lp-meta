@@ -371,8 +371,8 @@ def page(v):
 <meta property="og:image" content="{url}assets/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#2E4058">
-<link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 {FONTS}
 <style>{CSS}</style>
 {tracking_head(v)}
@@ -380,7 +380,7 @@ def page(v):
 <body>
 <header class="top">
   <div class="wrap">
-    <img src="assets/logo-reversed.png" alt="OutSearched, Origination &amp; Advisory" width="900" height="271">
+    <img src="/assets/logo-reversed.png" alt="OutSearched, Origination &amp; Advisory" width="900" height="271">
     <a class="btn" href="#apply">Book a call</a>
   </div>
 </header>
@@ -470,7 +470,7 @@ def page(v):
 
 <footer>
   <div class="wrap">
-    <img src="assets/logo-reversed.png" alt="OutSearched" width="900" height="271" loading="lazy">
+    <img src="/assets/logo-reversed.png" alt="OutSearched" width="900" height="271" loading="lazy">
     <div class="row"><span>&copy; 2026 OutSearched, LLC</span><span>Austin, TX</span><a href="{PRIVACY}">Privacy policy</a><a href="https://outsearched.com/">outsearched.com</a></div>
     <p class="fine">This site is not part of the Google or Meta Platforms, Inc. websites and is not endorsed by Google or Meta in any way. All trademarks belong to their respective owners.</p>
   </div>
@@ -497,6 +497,7 @@ def page(v):
     if(name) u.searchParams.set('name', name);
     if(email) u.searchParams.set('email', email);
     keep.forEach(function(k){{ if(params.get(k)) u.searchParams.set(k, params.get(k)); }});
+    if(!params.get('utm_term') && params.get('utm_keyword')) u.searchParams.set('utm_term', params.get('utm_keyword'));
     if(!params.get('utm_source')) u.searchParams.set('utm_source', cfg.source);
     w.setAttribute('data-url', u.toString());
     var s = document.createElement('script'); s.src = 'https://assets.calendly.com/assets/external/widget.js'; s.async = true; document.body.appendChild(s);
@@ -544,5 +545,15 @@ if __name__ == "__main__":
         with open(os.path.join(dst, "CNAME"), "w") as f:
             f.write(v["domain"] + "\n")
         open(os.path.join(dst, ".nojekyll"), "w").close()
+        # Old ad links: Meta ads point at /schedule (and older /confirm pages). Serve the same page there.
+        for sub in ["schedule"]:
+            os.makedirs(os.path.join(dst, sub), exist_ok=True)
+            with open(os.path.join(dst, sub, "index.html"), "w") as f:
+                f.write(page(v))
+        # Any other unknown path: send the visitor to the home page, keeping the ad's tracking parameters.
+        with open(os.path.join(dst, "404.html"), "w") as f:
+            f.write('<!doctype html><meta charset="utf-8"><title>OutSearched</title><meta name="robots" content="noindex">'
+                    '<script>location.replace("/"+location.search+location.hash)</script>'
+                    '<a href="/">Continue to OutSearched</a>')
         shutil.copy(os.path.abspath(__file__), os.path.join(dst, "build_lp.py"))
         print("built", key, "->", dst)

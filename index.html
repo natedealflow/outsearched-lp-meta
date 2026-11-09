@@ -13,8 +13,8 @@
 <meta property="og:image" content="https://start.outsearched.com/assets/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#2E4058">
-<link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600&family=Source+Sans+3:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
 <style>
 :root{
@@ -185,7 +185,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
 <body>
 <header class="top">
   <div class="wrap">
-    <img src="assets/logo-reversed.png" alt="OutSearched, Origination &amp; Advisory" width="900" height="271">
+    <img src="/assets/logo-reversed.png" alt="OutSearched, Origination &amp; Advisory" width="900" height="271">
     <a class="btn" href="#apply">Book a call</a>
   </div>
 </header>
@@ -349,7 +349,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
 
 <footer>
   <div class="wrap">
-    <img src="assets/logo-reversed.png" alt="OutSearched" width="900" height="271" loading="lazy">
+    <img src="/assets/logo-reversed.png" alt="OutSearched" width="900" height="271" loading="lazy">
     <div class="row"><span>&copy; 2026 OutSearched, LLC</span><span>Austin, TX</span><a href="https://outsearched.com/privacy-policy/">Privacy policy</a><a href="https://outsearched.com/">outsearched.com</a></div>
     <p class="fine">This site is not part of the Google or Meta Platforms, Inc. websites and is not endorsed by Google or Meta in any way. All trademarks belong to their respective owners.</p>
   </div>
@@ -376,6 +376,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
     if(name) u.searchParams.set('name', name);
     if(email) u.searchParams.set('email', email);
     keep.forEach(function(k){ if(params.get(k)) u.searchParams.set(k, params.get(k)); });
+    if(!params.get('utm_term') && params.get('utm_keyword')) u.searchParams.set('utm_term', params.get('utm_keyword'));
     if(!params.get('utm_source')) u.searchParams.set('utm_source', cfg.source);
     w.setAttribute('data-url', u.toString());
     var s = document.createElement('script'); s.src = 'https://assets.calendly.com/assets/external/widget.js'; s.async = true; document.body.appendChild(s);
