@@ -33,6 +33,8 @@ VARIANTS = {
     },
 }
 TRUSTPILOT = "https://www.trustpilot.com/review/outsearched.com"
+# GoHighLevel inbound webhook (OutSearched sub-account, workflow "Ad Landing Page Applications").
+GHL_WEBHOOK = "https://services.leadconnectorhq.com/hooks/TjwkkpfaWQx9DJtweeOi/webhook-trigger/d24abc95-4786-4294-9ffd-19852c658873"
 PRIVACY = "https://outsearched.com/privacy-policy/"
 VID_HERO = "fxm9xo6025"
 VID_STEPS = ["jatmsfgp38", "ppv28v5kf9", "11xmvfv4v6"]
@@ -352,7 +354,7 @@ def page(v):
           <figcaption><span>{e(w)}</span><span class="when">{e(d)} &middot; Trustpilot</span></figcaption>
         </figure>""" for t, q, w, d in REVIEWS)
     faqs = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in FAQS)
-    cfg = json.dumps({"source": v["source"], "googleAds": v["GOOGLE_ADS_ID"], "metaPixel": v["META_PIXEL_ID"], "tally": v["tally_form"]})
+    cfg = json.dumps({"source": v["source"], "googleAds": v["GOOGLE_ADS_ID"], "metaPixel": v["META_PIXEL_ID"], "tally": v["tally_form"], "ghl": GHL_WEBHOOK})
     tally_script = '<script async src="https://tally.so/widgets/embed.js"></script>' if v["tally_form"] else ""
     url = f"https://{v['domain']}/"
     desc = "We find, contact and qualify off-market business owners that match your exact buy box. Your deal team is live in 21 days."
@@ -509,21 +511,45 @@ def page(v):
     if(!d || d.event !== 'Tally.FormSubmitted' || !d.payload) return;
     try{{ console.log('[OS] tally payload', JSON.stringify(d.payload).slice(0,2000)); }}catch(e){{}}
     var f = d.payload.fields || [], ans = {{}};
+    function text(x){{
+      var v = x.answer && x.answer.value !== undefined ? x.answer.value : (x.value !== undefined ? x.value : x.answer);
+      var opts = x.options || (x.answer && x.answer.options) || [];
+      var map = function(o){{
+        if(o && typeof o === 'object') return o.text || o.label || o.value || '';
+        for(var i=0;i<opts.length;i++){{ if(opts[i].id === o) return opts[i].text; }}
+        return o;
+      }};
+      if(Array.isArray(v)) v = v.map(map).join(', ');
+      else v = map(v);
+      return (v === undefined || v === null) ? '' : String(v);
+    }}
     f.forEach(function(x){{
-      var t = (x.title||x.label||'').toLowerCase(), val = x.answer && (x.answer.value !== undefined ? x.answer.value : x.answer);
-      if(Array.isArray(val)) val = val.map(function(o){{ return o && o.text ? o.text : o; }}).join(' ');
-      if(val && typeof val === 'object' && val.text) val = val.text;
-      val = (val === undefined || val === null) ? '' : String(val);
-      if(t.indexOf('name') > -1 && !ans.name) ans.name = val;
+      var t = (x.title||x.label||'').toLowerCase(), val = text(x);
+      if(t.indexOf('your name') > -1) ans.name = val;
       else if(t.indexOf('email') > -1) ans.email = val;
-      else if(t.indexOf('begin your search') > -1) ans.timeline = val.toLowerCase();
+      else if(t.indexOf('phone') > -1) ans.phone = val;
+      else if(t.indexOf('begin your search') > -1) ans.timeline = val;
       else if(t.indexOf('liquid capital') > -1) ans.capital = val;
-      else if(t.indexOf('5,000') > -1) ans.budget = val.toLowerCase();
-      else if(t.indexOf('9 months') > -1) ans.months = val.toLowerCase();
+      else if(t.indexOf('5,000') > -1) ans.budget = val;
+      else if(t.indexOf('9 months') > -1) ans.months = val;
     }});
     track();
-    var dq = (ans.timeline||'').indexOf('curious') > -1 || /<|under|less/i.test(ans.capital||'') || ans.budget === 'no' || ans.months === 'no';
-    try{{ console.log('[OS] tally answers', JSON.stringify(ans)); }}catch(e){{}}
+    var dq = /curious/i.test(ans.timeline||'') || /less than|<|under/i.test(ans.capital||'') || /^no$/i.test(ans.budget||'') || /^no$/i.test(ans.months||'');
+    try{{ console.log('[OS] tally answers', JSON.stringify(ans), 'qualified', !dq); }}catch(e){{}}
+    // Send the application to GoHighLevel (workflow: Ad Landing Page Applications).
+    var label = cfg.source === 'meta' ? 'Meta ads (start.outsearched.com)' : 'Google ads (live.outsearched.com)';
+    var rec = {{
+      source: cfg.source, tags: cfg.source + ' lead, tally application' + (dq ? ', not qualified' : ''),
+      full_name: ans.name||'', email: ans.email||'', phone: ans.phone||'',
+      timeline: ans.timeline||'', liquid_capital: ans.capital||'', five_k_per_month: ans.budget||'', nine_months: ans.months||'',
+      qualified: dq ? 'no' : 'yes',
+      summary: 'Source: ' + label + ' | Timeline: ' + (ans.timeline||'') + ' | Liquid capital: ' + (ans.capital||'') + ' | $5K per month: ' + (ans.budget||'') + ' | 9 months: ' + (ans.months||'') + ' | Qualified: ' + (dq ? 'no' : 'yes') + ' | Campaign: ' + (params.get('utm_campaign')||''),
+      utm_source: params.get('utm_source')||'', utm_medium: params.get('utm_medium')||'', utm_campaign: params.get('utm_campaign')||'',
+      utm_content: params.get('utm_content')||'', utm_term: params.get('utm_term')||params.get('utm_keyword')||'',
+      gclid: params.get('gclid')||'', fbclid: params.get('fbclid')||'', page: location.href.split('#')[0],
+      form_id: cfg.tally, submission_id: d.payload.responseId || d.payload.id || ''
+    }};
+    try{{ fetch(cfg.ghl, {{method:'POST', headers:{{'content-type':'application/json'}}, body: JSON.stringify(rec), keepalive:true}}); }}catch(e){{}}
     if(!dq){{
       var fr = document.querySelector('#apply iframe[data-tally-src]'); if(fr) fr.style.display = 'none';
       showCalendly(ans.name, ans.email, 'You qualify. Pick a time for your free strategy call with Nate.');
