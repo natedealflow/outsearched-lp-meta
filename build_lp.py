@@ -48,7 +48,9 @@ VID_STEPS = [
     {"src": "https://outsearched-projects.vercel.app/videos/step2-v1.mp4",
      "poster": "https://outsearched-projects.vercel.app/videos/step2-v1-poster.jpg",
      "label": "Step 2: how we reach owners directly"},
-    "11xmvfv4v6",
+    {"src": "https://outsearched-projects.vercel.app/videos/step3-v1.mp4",
+     "poster": "https://outsearched-projects.vercel.app/videos/step3-v1-poster.jpg",
+     "label": "Step 3: how we qualify owners, get financials and get you to LOI"},
 ]
 WISTIA_STEPS = [m for m in VID_STEPS if isinstance(m, str)]
 
@@ -611,7 +613,7 @@ def page(v):
 </script>
 {tally_script}
 <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
-<script src="https://fast.wistia.com/player.js" async></script>
+{'<script src="https://fast.wistia.com/player.js" async></script>' if WISTIA_STEPS else ''}
 {''.join(f'<script src="https://fast.wistia.com/embed/{m}.js" async type="module"></script>' for m in WISTIA_STEPS)}
 </body>
 </html>
