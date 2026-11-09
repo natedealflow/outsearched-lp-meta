@@ -45,10 +45,10 @@ VID_STEPS = [
     {"src": "https://outsearched-projects.vercel.app/videos/step1-v1.mp4",
      "poster": "https://outsearched-projects.vercel.app/videos/step1-v1-poster.jpg",
      "label": "Step 1: how we define your mandate and build your list"},
-    {"src": "https://outsearched-projects.vercel.app/videos/step2-v1.mp4",
+    {"src": "https://outsearched-projects.vercel.app/videos/step2-v2.mp4",
      "poster": "https://outsearched-projects.vercel.app/videos/step2-v1-poster.jpg",
      "label": "Step 2: how we reach owners directly"},
-    {"src": "https://outsearched-projects.vercel.app/videos/step3-v1.mp4",
+    {"src": "https://outsearched-projects.vercel.app/videos/step3-v2.mp4",
      "poster": "https://outsearched-projects.vercel.app/videos/step3-v1-poster.jpg",
      "label": "Step 3: how we qualify owners, get financials and get you to LOI"},
 ]
