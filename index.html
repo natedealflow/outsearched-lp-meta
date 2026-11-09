@@ -109,6 +109,7 @@ p{margin:0}
 /* video */
 .video{position:relative;padding-top:56.25%;background:var(--navy-900);border-radius:var(--r);overflow:hidden;box-shadow:0 30px 60px -36px rgba(0,0,0,.6)}
 .video wistia-player{position:absolute;inset:0;display:block}
+.video video{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;background:var(--navy-900)}
 .video-wrap{max-width:900px}
 
 /* steps */
@@ -234,9 +235,9 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
     <div class="band-head">
       <span class="eyebrow">Watch how it works</span>
       <h2>How we build an off-market deal engine around your buy box</h2>
-      <p class="lede">Two minutes on how we build and staff your deal team.</p>
+      <p class="lede">90 seconds on how we build and staff your deal team.</p>
     </div>
-    <div class="video-wrap"><div class="video"><wistia-player media-id="fxm9xo6025" aspect="1.7777777777777777"></wistia-player></div></div>
+    <div class="video-wrap"><div class="video"><video src="https://outsearched-projects.vercel.app/videos/main-v1.mp4" poster="https://outsearched-projects.vercel.app/videos/main-v1-poster.jpg" controls playsinline preload="metadata" aria-label="How OutSearched builds your off-market deal pipeline"></video></div></div>
   </div>
 </section>
 
@@ -462,7 +463,6 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
 <script>(function(){document.querySelectorAll("iframe[data-tally-src]").forEach(function(fr){var u=new URL(fr.getAttribute("data-tally-src"));new URLSearchParams(location.search).forEach(function(v,k){if(!u.searchParams.has(k))u.searchParams.set(k,v);});u.searchParams.set("originPage",location.pathname);fr.src=u.toString();});var s=document.createElement("script");s.src="https://tally.so/widgets/embed.js";s.async=true;document.body.appendChild(s);})();</script>
 <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 <script src="https://fast.wistia.com/player.js" async></script>
-<script src="https://fast.wistia.com/embed/fxm9xo6025.js" async type="module"></script>
 <script src="https://fast.wistia.com/embed/jatmsfgp38.js" async type="module"></script><script src="https://fast.wistia.com/embed/ppv28v5kf9.js" async type="module"></script><script src="https://fast.wistia.com/embed/11xmvfv4v6.js" async type="module"></script>
 </body>
 </html>

@@ -36,7 +36,10 @@ TRUSTPILOT = "https://www.trustpilot.com/review/outsearched.com"
 # GoHighLevel inbound webhook (OutSearched sub-account, workflow "Ad Landing Page Applications").
 GHL_WEBHOOK = "https://services.leadconnectorhq.com/hooks/TjwkkpfaWQx9DJtweeOi/webhook-trigger/d24abc95-4786-4294-9ffd-19852c658873"
 PRIVACY = "/privacy/"  # outsearched.com has no privacy page, so each landing site hosts its own
-VID_HERO = "fxm9xo6025"
+# Main video: self-hosted on Vercel (project outsearched-projects, repo natedealflow/outsearched-projects /videos).
+# New cut = new filename (main-v2.mp4); files are cached for a year.
+HERO_VIDEO = "https://outsearched-projects.vercel.app/videos/main-v1.mp4"
+HERO_POSTER = "https://outsearched-projects.vercel.app/videos/main-v1-poster.jpg"
 VID_STEPS = ["jatmsfgp38", "ppv28v5kf9", "11xmvfv4v6"]
 
 # ------------------------------------------------------------------ content
@@ -220,6 +223,7 @@ p{margin:0}
 /* video */
 .video{position:relative;padding-top:56.25%;background:var(--navy-900);border-radius:var(--r);overflow:hidden;box-shadow:0 30px 60px -36px rgba(0,0,0,.6)}
 .video wistia-player{position:absolute;inset:0;display:block}
+.video video{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;background:var(--navy-900)}
 .video-wrap{max-width:900px}
 
 /* steps */
@@ -426,9 +430,9 @@ def page(v):
     <div class="band-head">
       <span class="eyebrow">Watch how it works</span>
       <h2>How we build an off-market deal engine around your buy box</h2>
-      <p class="lede">Two minutes on how we build and staff your deal team.</p>
+      <p class="lede">90 seconds on how we build and staff your deal team.</p>
     </div>
-    <div class="video-wrap"><div class="video"><wistia-player media-id="{VID_HERO}" aspect="1.7777777777777777"></wistia-player></div></div>
+    <div class="video-wrap"><div class="video"><video src="{HERO_VIDEO}" poster="{HERO_POSTER}" controls playsinline preload="metadata" aria-label="How OutSearched builds your off-market deal pipeline"></video></div></div>
   </div>
 </section>
 
@@ -591,7 +595,6 @@ def page(v):
 {tally_script}
 <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 <script src="https://fast.wistia.com/player.js" async></script>
-<script src="https://fast.wistia.com/embed/{VID_HERO}.js" async type="module"></script>
 {''.join(f'<script src="https://fast.wistia.com/embed/{m}.js" async type="module"></script>' for m in VID_STEPS)}
 </body>
 </html>
@@ -609,7 +612,7 @@ PRIVACY_SECTIONS = [
      ["To review your application, contact you about it, schedule and hold your strategy call, and follow up with you by email, phone or text about our services.",
       "To measure and improve our advertising and this website, including telling Google and Meta when someone applies or books a call so we can see which ads work."]),
     ("Who we share it with",
-     ["We do not sell your personal information. We share it only with service providers that help us run this process: Tally (application form), Calendly (scheduling), GoHighLevel (our customer relationship system), Wistia (video), Google (Google Ads and Google Fonts), Meta (the Meta Pixel) and GitHub (website hosting). Each handles your information under its own privacy terms.",
+     ["We do not sell your personal information. We share it only with service providers that help us run this process: Tally (application form), Calendly (scheduling), GoHighLevel (our customer relationship system), Wistia and Vercel (video), Google (Google Ads and Google Fonts), Meta (the Meta Pixel) and GitHub (website hosting). Each handles your information under its own privacy terms.",
       "We may also share information if the law requires it, or as part of a sale or reorganization of our business."]),
     ("Cookies and ad tracking",
      ["This site uses the Google Ads tag and the Meta Pixel to measure ad results. You can block or delete cookies in your browser settings, opt out of personalized Google ads at adssettings.google.com, and manage Meta ad preferences in your Facebook or Instagram settings."]),
@@ -676,7 +679,8 @@ def privacy_page(v):
 if __name__ == "__main__":
     for key, v in VARIANTS.items():
         dst = OUT[key]
-        make_assets(dst)
+        if os.path.isdir(ASSETS):  # source logos only exist in the original build workspace; repos already hold the outputs
+            make_assets(dst)
         with open(os.path.join(dst, "index.html"), "w") as f:
             f.write(page(v))
         with open(os.path.join(dst, "CNAME"), "w") as f:
