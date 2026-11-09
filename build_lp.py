@@ -449,9 +449,9 @@ def page(v):
       <h2>What our clients say</h2>
     </div>
     <div class="score">
-      <span class="big">5.0</span>
-      <div><div class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-      <p class="meta">All 16 reviews are five stars. <a href="{TRUSTPILOT}" target="_blank" rel="noopener">Read them on Trustpilot</a></p></div>
+      <span class="big">16</span>
+      <div><div class="stars" aria-label="Five stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p class="meta">Five-star reviews on Trustpilot. <a href="{TRUSTPILOT}" target="_blank" rel="noopener">Read them on Trustpilot</a></p></div>
     </div>
     <div class="reviews">{reviews}</div>
   </div>
