@@ -378,7 +378,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
     keep.forEach(function(k){ if(params.get(k)) u.searchParams.set(k, params.get(k)); });
     if(!params.get('utm_term') && params.get('utm_keyword')) u.searchParams.set('utm_term', params.get('utm_keyword'));
     if(!params.get('utm_source')) u.searchParams.set('utm_source', cfg.source);
-    w.setAttribute('data-url', u.toString());
+    w.setAttribute('data-url', u.toString().replace(/\+/g, '%20'));
     var s = document.createElement('script'); s.src = 'https://assets.calendly.com/assets/external/widget.js'; s.async = true; document.body.appendChild(s);
   }
   // When the Tally form is submitted, qualified applicants get the Calendly ads event right here. Its redirect opens /confirmed/.
