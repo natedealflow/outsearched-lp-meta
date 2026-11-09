@@ -187,6 +187,10 @@ p{margin:0}
 .apply-body{padding:6px 10px 10px;min-height:420px}
 .apply-body iframe{width:100%;border:0;display:block}
 .apply-foot{background:var(--parchment);padding:12px 22px;font-size:13px;color:var(--sage-deep)}
+.dq{display:none;padding:28px 14px 22px}
+.dq.show{display:block}
+.dq p{font-size:16px;line-height:1.6;color:var(--navy-900);margin:0 0 14px}
+.dq .dq-title{font-family:var(--f-display);font-weight:600;font-size:26px;line-height:1.25;margin-bottom:16px}
 .cal{display:none}
 .cal.show{display:block}
 .cal .calendly-inline-widget{min-width:280px;height:700px}
@@ -324,6 +328,11 @@ def form_block(v):
         <div class="apply-head"><span class="eyebrow">See if you qualify</span><span>Takes about 60 seconds</span></div>
         <div class="apply-body">
           {form}
+          <div class="dq" id="dq">
+            <p class="dq-title" id="dq-title">Thanks for applying.</p>
+            <p>Based on your answers, a strategy call isn't the right next step yet. Our clients are ready to start a search within 60 days, with at least $250K in liquid capital and $5,000 a month for deal flow.</p>
+            <p>When your timing or budget changes, apply again and we'll pick it up from there.</p>
+          </div>
           <div class="{cal_cls}" id="cal">
             <p class="cal-note" id="cal-note">Pick a time for your free strategy call with Nate.</p>
             <div class="calendly-inline-widget" id="cal-widget" data-base="{CALENDLY_ADS}"></div>
@@ -559,8 +568,15 @@ def page(v):
       form_id: cfg.tally, submission_id: d.payload.responseId || d.payload.id || ''
     }};
     try{{ fetch(cfg.ghl, {{method:'POST', headers:{{'content-type':'application/json'}}, body: JSON.stringify(rec), keepalive:true}}); }}catch(e){{}}
+    var fr = document.querySelector('#apply iframe[data-tally-src]'); if(fr) fr.style.display = 'none';
+    if(dq){{
+      // Not a fit right now: show our own message instead of Tally's generic thank-you screen.
+      var first = String(ans.name||'').trim().split(/\s+/)[0];
+      document.getElementById('dq-title').textContent = first ? ('Thanks for applying, ' + first + '.') : 'Thanks for applying.';
+      document.getElementById('dq').classList.add('show');
+      document.getElementById('apply').scrollIntoView({{behavior:'smooth', block:'start'}});
+    }}
     if(!dq){{
-      var fr = document.querySelector('#apply iframe[data-tally-src]'); if(fr) fr.style.display = 'none';
       showCalendly(ans.name, ans.email, 'You qualify. Pick a time for your free strategy call with Nate.', ans);
       document.getElementById('apply').scrollIntoView({{behavior:'smooth', block:'start'}});
     }}
