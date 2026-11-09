@@ -40,7 +40,22 @@ PRIVACY = "/privacy/"  # outsearched.com has no privacy page, so each landing si
 # New cut = new filename (main-v2.mp4); files are cached for a year.
 HERO_VIDEO = "https://outsearched-projects.vercel.app/videos/main-v1.mp4"
 HERO_POSTER = "https://outsearched-projects.vercel.app/videos/main-v1-poster.jpg"
-VID_STEPS = ["jatmsfgp38", "ppv28v5kf9", "11xmvfv4v6"]
+# Step videos: a Wistia media ID, or a self-hosted file on Vercel (same host and caching as the main video).
+VID_STEPS = [
+    {"src": "https://outsearched-projects.vercel.app/videos/step1-v1.mp4",
+     "poster": "https://outsearched-projects.vercel.app/videos/step1-v1-poster.jpg",
+     "label": "Step 1: how we define your mandate and build your list"},
+    "ppv28v5kf9",
+    "11xmvfv4v6",
+]
+WISTIA_STEPS = [m for m in VID_STEPS if isinstance(m, str)]
+
+
+def step_player(m):
+    if isinstance(m, str):
+        return f'<wistia-player media-id="{m}" aspect="1.7777777777777777"></wistia-player>'
+    return (f'<video src="{m["src"]}" poster="{m["poster"]}" controls playsinline preload="none" '
+            f'aria-label="{e(m["label"])}"></video>')
 
 # ------------------------------------------------------------------ content
 # Verbatim excerpts from OutSearched's Trustpilot page (16 reviews, all 5 stars).
@@ -358,7 +373,7 @@ def page(v):
           <p>{e(d)}</p>
           <p class="pay">{e(p)}</p>
         </div>
-        <div class="video"><wistia-player media-id="{VID_STEPS[i]}" aspect="1.7777777777777777"></wistia-player></div>
+        <div class="video">{step_player(VID_STEPS[i])}</div>
       </div>""" for i, (t, d, p) in enumerate(STEPS))
     benefits = "".join(f'<div class="benefit"><h3>{e(t)}</h3><p>{e(d)}</p></div>' for t, d in BENEFITS)
     reviews = "".join(f"""
@@ -595,7 +610,7 @@ def page(v):
 {tally_script}
 <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 <script src="https://fast.wistia.com/player.js" async></script>
-{''.join(f'<script src="https://fast.wistia.com/embed/{m}.js" async type="module"></script>' for m in VID_STEPS)}
+{''.join(f'<script src="https://fast.wistia.com/embed/{m}.js" async type="module"></script>' for m in WISTIA_STEPS)}
 </body>
 </html>
 """
