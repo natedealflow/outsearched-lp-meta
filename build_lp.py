@@ -19,14 +19,14 @@ CALENDLY_ADS = "https://calendly.com/nate-outsearched/strategy-call-with-outsear
 VARIANTS = {
     "google": {
         "domain": "live.outsearched.com",
-        "tally_form": "",          # Tally form ID for the Google ads form (blank = book straight on Calendly)
+        "tally_form": "q5arO9",    # Tally: OutSearched | Google Ads Application (blank = book straight on Calendly)
         "source": "google",
         "GOOGLE_ADS_ID": "AW-18161038602",
         "META_PIXEL_ID": "",
     },
     "meta": {
         "domain": "start.outsearched.com",
-        "tally_form": "",          # Tally form ID for the Meta ads form
+        "tally_form": "QoMZdG",    # Tally: OutSearched | Meta Ads Application
         "source": "meta",
         "GOOGLE_ADS_ID": "",
         "META_PIXEL_ID": "4211957752402802",
@@ -507,6 +507,7 @@ def page(v):
     var d = ev.data;
     if(typeof d === 'string'){{ try{{ d = JSON.parse(d); }}catch(e){{ return; }} }}
     if(!d || d.event !== 'Tally.FormSubmitted' || !d.payload) return;
+    try{{ console.log('[OS] tally payload', JSON.stringify(d.payload).slice(0,2000)); }}catch(e){{}}
     var f = d.payload.fields || [], ans = {{}};
     f.forEach(function(x){{
       var t = (x.title||x.label||'').toLowerCase(), val = x.answer && (x.answer.value !== undefined ? x.answer.value : x.answer);
@@ -522,7 +523,12 @@ def page(v):
     }});
     track();
     var dq = (ans.timeline||'').indexOf('curious') > -1 || /<|under|less/i.test(ans.capital||'') || ans.budget === 'no' || ans.months === 'no';
-    if(!dq) showCalendly(ans.name, ans.email, 'You qualify. Pick a time for your free strategy call with Nate.');
+    try{{ console.log('[OS] tally answers', JSON.stringify(ans)); }}catch(e){{}}
+    if(!dq){{
+      var fr = document.querySelector('#apply iframe[data-tally-src]'); if(fr) fr.style.display = 'none';
+      showCalendly(ans.name, ans.email, 'You qualify. Pick a time for your free strategy call with Nate.');
+      document.getElementById('apply').scrollIntoView({{behavior:'smooth', block:'start'}});
+    }}
   }});
   if(!cfg.tally) showCalendly('', '', '');
 }})(OS_CFG);
