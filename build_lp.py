@@ -45,7 +45,9 @@ VID_STEPS = [
     {"src": "https://outsearched-projects.vercel.app/videos/step1-v1.mp4",
      "poster": "https://outsearched-projects.vercel.app/videos/step1-v1-poster.jpg",
      "label": "Step 1: how we define your mandate and build your list"},
-    "ppv28v5kf9",
+    {"src": "https://outsearched-projects.vercel.app/videos/step2-v1.mp4",
+     "poster": "https://outsearched-projects.vercel.app/videos/step2-v1-poster.jpg",
+     "label": "Step 2: how we reach owners directly"},
     "11xmvfv4v6",
 ]
 WISTIA_STEPS = [m for m in VID_STEPS if isinstance(m, str)]
