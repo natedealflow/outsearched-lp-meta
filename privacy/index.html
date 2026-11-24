@@ -171,6 +171,17 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
   .benefit,.benefit:not(:nth-child(3n+1)){padding:24px 0;border-left:0}
   .band{padding:60px 0}
 }
+.hero .sub-short{display:none}
+@media (max-width: 600px){
+  .hero.compact .wrap{padding-top:20px;gap:18px}
+  .hero.compact p.eyebrow{font-size:11px;letter-spacing:.12em}
+  .hero.compact h1{margin-top:10px;font-size:29px}
+  .hero.compact .sub{margin-top:10px;font-size:16px;line-height:1.45}
+  .hero.compact .apply-head{padding:12px 16px}
+  .hero.compact .sub-long,.hero.compact .proof{display:none}
+  .hero.compact .sub-short{display:inline}
+  .hero.compact .apply-head{flex-wrap:wrap;row-gap:4px}
+}
 @media (max-width: 420px){
   .top img{height:36px}
   .apply-head{padding:16px}
@@ -190,7 +201,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
 <body>
 <header class="top">
   <div class="wrap">
-    <a href="/"><img src="/assets/logo-reversed.png" alt="OutSearched, Origination &amp; Advisory" width="900" height="271"></a>
+    <a href="/"><img src="/assets/logo-reversed-sm.png" alt="OutSearched, Origination &amp; Advisory" width="345" height="104"></a>
     <a class="btn" href="/#apply">Book a call</a>
   </div>
 </header>
@@ -203,7 +214,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
 </main>
 <footer>
   <div class="wrap">
-    <img src="/assets/logo-reversed.png" alt="OutSearched" width="900" height="271" loading="lazy">
+    <img src="/assets/logo-reversed-sm.png" alt="OutSearched" width="345" height="104" loading="lazy">
     <div class="row"><span>&copy; 2026 OutSearched, LLC</span><span>Austin, TX</span><a href="/privacy/">Privacy policy</a><a href="https://outsearched.com/">outsearched.com</a></div>
   </div>
 </footer>

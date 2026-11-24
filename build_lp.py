@@ -23,6 +23,7 @@ VARIANTS = {
         "source": "google",
         "GOOGLE_ADS_ID": "AW-18161038602",
         "META_PIXEL_ID": "",
+        "copy": "default",
     },
     "meta": {
         "domain": "start.outsearched.com",
@@ -30,8 +31,30 @@ VARIANTS = {
         "source": "meta",
         "GOOGLE_ADS_ID": "",
         "META_PIXEL_ID": "4211957752402802",
+        "copy": "meta_b1",  # Nov 23, 2026: hero and CTA copy matched to the Meta B1 ads
     },
 }
+# Hero, form card and CTA copy per variant. "default" is the original copy (Google page).
+COPY = {
+    "default": {
+        "eyebrow": "Serious about buying a business?",
+        "h1": "The best businesses sell before they're listed. <span class=\"gold\">We get them to you first.</span>",
+        "sub": "<b>Over $500M in off-market deals sourced.</b> We find, contact and qualify off-market business owners who match your exact buy box. No brokers, no auctions, no wasted time.",
+        "sub_short": "",
+        "form_head": "See if you qualify", "form_sub": "Takes about 60 seconds",
+        "cta_top": "Book a call", "cta": "See if you qualify",
+    },
+    "meta_b1": {
+        "eyebrow": "For buyers making an acquisition in the next 12 to 24 months",
+        "h1": "You have the capital and the buy box. <span class=\"gold\">We get you talking to owners.</span>",
+        "sub": "<b>Over $500M in off-market deals sourced.</b> We find, contact and qualify off-market owners who match your buy box, then hand you the conversations. Your deal team goes live in 21 days. No brokers, no auctions, no wasted time.",
+        # Shorter subhead on phones so question 1 and its Next button fit on the first screen.
+        "sub_short": "<b>Over $500M in off-market deals sourced.</b> We find and qualify off-market owners for your buy box. No brokers, no auctions, no wasted time.",
+        "form_head": "Book your strategy call", "form_sub": "4 quick steps, then pick a time",
+        "cta_top": "Book a strategy call", "cta": "Book a strategy call",
+    },
+}
+LOGO = "/assets/logo-reversed-sm.png"  # 345x104 optimized copy of logo-reversed.png (shown at 36 to 46px tall)
 TRUSTPILOT = "https://www.trustpilot.com/review/outsearched.com"
 # GoHighLevel inbound webhook (OutSearched sub-account, workflow "Ad Landing Page Applications").
 GHL_WEBHOOK = "https://services.leadconnectorhq.com/hooks/TjwkkpfaWQx9DJtweeOi/webhook-trigger/d24abc95-4786-4294-9ffd-19852c658873"
@@ -311,6 +334,17 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
   .benefit,.benefit:not(:nth-child(3n+1)){padding:24px 0;border-left:0}
   .band{padding:60px 0}
 }
+.hero .sub-short{display:none}
+@media (max-width: 600px){
+  .hero.compact .wrap{padding-top:20px;gap:18px}
+  .hero.compact p.eyebrow{font-size:11px;letter-spacing:.12em}
+  .hero.compact h1{margin-top:10px;font-size:29px}
+  .hero.compact .sub{margin-top:10px;font-size:16px;line-height:1.45}
+  .hero.compact .apply-head{padding:12px 16px}
+  .hero.compact .sub-long,.hero.compact .proof{display:none}
+  .hero.compact .sub-short{display:inline}
+  .hero.compact .apply-head{flex-wrap:wrap;row-gap:4px}
+}
 @media (max-width: 420px){
   .top img{height:36px}
   .apply-head{padding:16px}
@@ -340,17 +374,18 @@ def tracking_head(v):
 
 
 def form_block(v):
+    c = COPY[v.get("copy", "default")]
     tally = v["tally_form"]
     if tally:
         form = (f'<iframe data-tally-src="https://tally.so/embed/{tally}?hideTitle=1&transparentBackground=1&dynamicHeight=1&source={v["source"]}" '
-                'width="100%" height="420" title="See if you qualify"></iframe>')
+                f'width="100%" height="420" title="{e(c["form_head"])}"></iframe>')
         cal_cls = "cal"
     else:
         form = ""
         cal_cls = "cal show"
     return f"""
       <div class="apply" id="apply">
-        <div class="apply-head"><span class="eyebrow">See if you qualify</span><span>Takes about 60 seconds</span></div>
+        <div class="apply-head"><span class="eyebrow">{e(c["form_head"])}</span><span>{e(c["form_sub"])}</span></div>
         <div class="apply-body">
           {form}
           <div class="dq" id="dq">
@@ -368,6 +403,8 @@ def form_block(v):
 
 
 def page(v):
+    c = COPY[v.get("copy", "default")]
+    sub = (f'<span class="sub-long">{c["sub"]}</span><span class="sub-short">{c["sub_short"]}</span>' if c["sub_short"] else c["sub"])
     stats = "".join(f"<li><b>{e(a)}</b><span>{e(b)}</span></li>" for a, b in STATS)
     steps = "".join(f"""
       <div class="step">
@@ -389,12 +426,16 @@ def page(v):
         </figure>""" for t, q, w, d in REVIEWS)
     faqs = "".join(f"<details><summary>{e(q)}</summary><p>{e(a)}</p></details>" for q, a in FAQS)
     cfg = json.dumps({"source": v["source"], "googleAds": v["GOOGLE_ADS_ID"], "metaPixel": v["META_PIXEL_ID"], "tally": v["tally_form"], "ghl": GHL_WEBHOOK})
+    # Tally's embed.js only initializes iframes that still have data-tally-src and no src. It then sets src itself,
+    # appends originPage and the page's own query string (utm_*, fbclid, ...), and turns on dynamicHeight resizing.
+    # Fallback: if embed.js has not loaded after 5 seconds, set src the old way so the form still shows.
     tally_script = ('<script>(function(){'
-                    'document.querySelectorAll("iframe[data-tally-src]").forEach(function(fr){'
+                    'var s=document.createElement("script");s.src="https://tally.so/widgets/embed.js";s.async=true;document.body.appendChild(s);'
+                    'setTimeout(function(){document.querySelectorAll("iframe[data-tally-src]").forEach(function(fr){'
+                    'if(fr.getAttribute("src"))return;'
                     'var u=new URL(fr.getAttribute("data-tally-src"));'
                     'new URLSearchParams(location.search).forEach(function(v,k){if(!u.searchParams.has(k))u.searchParams.set(k,v);});'
-                    'u.searchParams.set("originPage",location.pathname);fr.src=u.toString();});'
-                    'var s=document.createElement("script");s.src="https://tally.so/widgets/embed.js";s.async=true;document.body.appendChild(s);'
+                    'u.searchParams.set("originPage",location.pathname);fr.src=u.toString();});},5000);'
                     '})();</script>') if v["tally_form"] else ""
     url = f"https://{v['domain']}/"
     desc = "We find, contact and qualify off-market business owners that match your exact buy box. Your deal team is live in 21 days."
@@ -422,18 +463,18 @@ def page(v):
 <body>
 <header class="top">
   <div class="wrap">
-    <img src="/assets/logo-reversed.png" alt="OutSearched, Origination &amp; Advisory" width="900" height="271">
-    <a class="btn" href="#apply">Book a call</a>
+    <img src="{LOGO}" alt="OutSearched, Origination &amp; Advisory" width="345" height="104">
+    <a class="btn" href="#apply">{e(c["cta_top"])}</a>
   </div>
 </header>
 
 <main>
-<section class="hero">
+<section class="hero{' compact' if c['sub_short'] else ''}">
   <div class="wrap">
     <div>
-      <p class="eyebrow">Serious about buying a business?</p>
-      <h1>The best businesses sell before they're listed. <span class="gold">We get them to you first.</span></h1>
-      <p class="sub"><b>Over $500M in off-market deals sourced.</b> We find, contact and qualify off-market business owners who match your exact buy box. No brokers, no auctions, no wasted time.</p>
+      <p class="eyebrow">{e(c["eyebrow"])}</p>
+      <h1>{c["h1"]}</h1>
+      <p class="sub">{sub}</p>
       <p class="proof"><span class="stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span>16 five-star reviews on <a href="{TRUSTPILOT}" target="_blank" rel="noopener">Trustpilot</a></span></p>
     </div>
     {form_block(v)}
@@ -472,7 +513,7 @@ def page(v):
       <h2>Everything a deal team does, without the hire</h2>
     </div>
     <div class="grid3">{benefits}</div>
-    <p style="margin-top:36px"><a class="btn" href="#apply">See if you qualify</a></p>
+    <p style="margin-top:36px"><a class="btn" href="#apply">{e(c["cta"])}</a></p>
   </div>
 </section>
 
@@ -505,14 +546,14 @@ def page(v):
   <div class="wrap">
     <h2>Ready to stop waiting on brokers?</h2>
     <p class="lede">Book a free strategy call. We'll define your mandate and show you what your pipeline could look like in your first 60 days.</p>
-    <a class="btn" href="#apply">See if you qualify</a>
+    <a class="btn" href="#apply">{e(c["cta"])}</a>
   </div>
 </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <img src="/assets/logo-reversed.png" alt="OutSearched" width="900" height="271" loading="lazy">
+    <img src="{LOGO}" alt="OutSearched" width="345" height="104" loading="lazy">
     <div class="row"><span>&copy; 2026 OutSearched, LLC</span><span>Austin, TX</span><a href="{PRIVACY}">Privacy policy</a><a href="https://outsearched.com/">outsearched.com</a></div>
     <p class="fine">This site is not part of the Google or Meta Platforms, Inc. websites and is not endorsed by Google or Meta in any way. All trademarks belong to their respective owners.</p>
   </div>
@@ -549,6 +590,23 @@ def page(v):
     // widget.js is loaded in the background when the page opens, so the calendar appears fast.
     (function go(n){{ if(window.Calendly && Calendly.initInlineWidget){{ Calendly.initInlineWidget({{url: url, parentElement: w}}); }} else if(n < 100){{ setTimeout(function(){{ go(n+1); }}, 100); }} }})(0);
   }}
+  // Step tracking (Nov 23, 2026): custom pixel events when the form loads and on each Tally page, once per page per visit.
+  // Does not touch PageView, Lead or Schedule. Shows where applicants stop: page 1 timeline, 2 capital, 3 $5K, 4 contact.
+  var seenSteps = {{}};
+  window.addEventListener('message', function(ev){{
+    var h = ''; try{{ h = new URL(ev.origin).hostname; }}catch(e){{}}
+    if(h !== 'tally.so' && h.slice(-9) !== '.tally.so') return;
+    var d = ev.data;
+    if(typeof d === 'string'){{ try{{ d = JSON.parse(d); }}catch(e){{ return; }} }}
+    if(!d || !d.event) return;
+    var key = null, name = null, params = {{form_id: cfg.tally, source: cfg.source}};
+    if(d.event === 'Tally.FormLoaded'){{ key = 'loaded'; name = 'ApplicationFormLoaded'; }}
+    else if(d.event === 'Tally.FormPageView' && d.payload && d.payload.page){{ key = 'p' + d.payload.page; name = 'ApplicationStep'; params.step = d.payload.page; }}
+    if(!key || seenSteps[key]) return;
+    seenSteps[key] = 1;
+    try{{ if(cfg.metaPixel && window.fbq) fbq('trackCustom', name, params); }}catch(e){{}}
+    try{{ if(cfg.googleAds && window.gtag) gtag('event', name === 'ApplicationStep' ? 'application_step' : 'application_form_loaded', params); }}catch(e){{}}
+  }});
   // When the Tally form is submitted, qualified applicants get the Calendly ads event right here. Its redirect opens /confirmed/.
   window.addEventListener('message', function(ev){{
     var d = ev.data;
@@ -674,7 +732,7 @@ def privacy_page(v):
 <body>
 <header class="top">
   <div class="wrap">
-    <a href="/"><img src="/assets/logo-reversed.png" alt="OutSearched, Origination &amp; Advisory" width="900" height="271"></a>
+    <a href="/"><img src="{LOGO}" alt="OutSearched, Origination &amp; Advisory" width="345" height="104"></a>
     <a class="btn" href="/#apply">Book a call</a>
   </div>
 </header>
@@ -687,7 +745,7 @@ def privacy_page(v):
 </main>
 <footer>
   <div class="wrap">
-    <img src="/assets/logo-reversed.png" alt="OutSearched" width="900" height="271" loading="lazy">
+    <img src="{LOGO}" alt="OutSearched" width="345" height="104" loading="lazy">
     <div class="row"><span>&copy; 2026 OutSearched, LLC</span><span>Austin, TX</span><a href="/privacy/">Privacy policy</a><a href="https://outsearched.com/">outsearched.com</a></div>
   </div>
 </footer>
