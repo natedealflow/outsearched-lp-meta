@@ -50,7 +50,7 @@ COPY = {
         "sub": "<b>Over $500M in off-market deals sourced.</b> We find, contact and qualify off-market owners who match your buy box, then hand you the conversations. Your deal team goes live in 21 days. No brokers, no auctions, no wasted time.",
         # Shorter subhead on phones so question 1 and its Next button fit on the first screen.
         "sub_short": "<b>Over $500M in off-market deals sourced.</b> We find and qualify off-market owners for your buy box. No brokers, no auctions, no wasted time.",
-        "form_head": "Book your strategy call", "form_sub": "4 quick steps, then pick a time",
+        "form_head": "Book your strategy call", "form_sub": "A few quick questions, then pick a time",
         "cta_top": "Book a strategy call", "cta": "Book a strategy call",
     },
 }
@@ -592,7 +592,7 @@ def page(v):
     (function go(n){{ if(window.Calendly && Calendly.initInlineWidget){{ Calendly.initInlineWidget({{url: url, parentElement: w}}); }} else if(n < 100){{ setTimeout(function(){{ go(n+1); }}, 100); }} }})(0);
   }}
   // Step tracking (Nov 23, 2026): custom pixel events when the form loads and on each Tally page, once per page per visit.
-  // Does not touch PageView, Lead or Schedule. Shows where applicants stop: page 1 timeline, 2 capital, 3 $5K, 4 contact.
+  // Does not touch PageView, Lead or Schedule. Shows where applicants stop: 1 name, 2 phone, 3 email, 4 search stage, 5 liquid capital, 6 $5K/month.
   var seenSteps = {{}};
   window.addEventListener('message', function(ev){{
     var h = ''; try{{ h = new URL(ev.origin).hostname; }}catch(e){{}}

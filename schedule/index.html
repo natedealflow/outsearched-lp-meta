@@ -219,7 +219,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
     </div>
     
       <div class="apply" id="apply">
-        <div class="apply-head"><span class="eyebrow">Book your strategy call</span><span>4 quick steps, then pick a time</span></div>
+        <div class="apply-head"><span class="eyebrow">Book your strategy call</span><span>A few quick questions, then pick a time</span></div>
         <div class="apply-body">
           <iframe data-tally-src="https://tally.so/embed/QoMZdG?hideTitle=1&transparentBackground=1&dynamicHeight=1&source=meta" width="100%" height="420" title="Book your strategy call"></iframe>
           <div class="dq" id="dq">
@@ -410,7 +410,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
     (function go(n){ if(window.Calendly && Calendly.initInlineWidget){ Calendly.initInlineWidget({url: url, parentElement: w}); } else if(n < 100){ setTimeout(function(){ go(n+1); }, 100); } })(0);
   }
   // Step tracking (Nov 23, 2026): custom pixel events when the form loads and on each Tally page, once per page per visit.
-  // Does not touch PageView, Lead or Schedule. Shows where applicants stop: page 1 timeline, 2 capital, 3 $5K, 4 contact.
+  // Does not touch PageView, Lead or Schedule. Shows where applicants stop: 1 name, 2 phone, 3 email, 4 search stage, 5 liquid capital, 6 $5K/month.
   var seenSteps = {};
   window.addEventListener('message', function(ev){
     var h = ''; try{ h = new URL(ev.origin).hostname; }catch(e){}
