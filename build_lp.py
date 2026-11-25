@@ -428,14 +428,15 @@ def page(v):
     cfg = json.dumps({"source": v["source"], "googleAds": v["GOOGLE_ADS_ID"], "metaPixel": v["META_PIXEL_ID"], "tally": v["tally_form"], "ghl": GHL_WEBHOOK})
     # Tally's embed.js only initializes iframes that still have data-tally-src and no src. It then sets src itself,
     # appends originPage and the page's own query string (utm_*, fbclid, ...), and turns on dynamicHeight resizing.
-    # Fallback: if embed.js has not loaded after 5 seconds, set src the old way so the form still shows.
+    # Nov 25, 2026: load the form right away (was a 5-second fallback, which left a blank box on mobile).
+    # data-tally-src is removed so embed.js treats it as a normal dynamicHeight iframe and still auto-resizes it.
     tally_script = ('<script>(function(){'
                     'var s=document.createElement("script");s.src="https://tally.so/widgets/embed.js";s.async=true;document.body.appendChild(s);'
                     'setTimeout(function(){document.querySelectorAll("iframe[data-tally-src]").forEach(function(fr){'
                     'if(fr.getAttribute("src"))return;'
                     'var u=new URL(fr.getAttribute("data-tally-src"));'
                     'new URLSearchParams(location.search).forEach(function(v,k){if(!u.searchParams.has(k))u.searchParams.set(k,v);});'
-                    'u.searchParams.set("originPage",location.pathname);fr.src=u.toString();});},5000);'
+                    'u.searchParams.set("originPage",location.pathname);fr.removeAttribute("data-tally-src");fr.src=u.toString();});},0);'
                     '})();</script>') if v["tally_form"] else ""
     url = f"https://{v['domain']}/"
     desc = "We find, contact and qualify off-market business owners that match your exact buy box. Your deal team is live in 21 days."
@@ -671,7 +672,7 @@ def page(v):
       form_id: cfg.tally, submission_id: d.payload.responseId || d.payload.id || ''
     }};
     try{{ fetch(cfg.ghl, {{method:'POST', headers:{{'content-type':'application/json'}}, body: JSON.stringify(rec), keepalive:true}}); }}catch(e){{}}
-    var fr = document.querySelector('#apply iframe[data-tally-src]'); if(fr) fr.style.display = 'none';
+    var fr = document.querySelector('#apply iframe[src*="tally.so"]'); if(fr) fr.style.display = 'none';
     if(dq){{
       // Not a fit right now: show our own message instead of Tally's generic thank-you screen.
       var first = String(ans.name||'').trim().split(/\s+/)[0];

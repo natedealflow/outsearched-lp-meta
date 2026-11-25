@@ -490,7 +490,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
       form_id: cfg.tally, submission_id: d.payload.responseId || d.payload.id || ''
     };
     try{ fetch(cfg.ghl, {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(rec), keepalive:true}); }catch(e){}
-    var fr = document.querySelector('#apply iframe[data-tally-src]'); if(fr) fr.style.display = 'none';
+    var fr = document.querySelector('#apply iframe[src*="tally.so"]'); if(fr) fr.style.display = 'none';
     if(dq){
       // Not a fit right now: show our own message instead of Tally's generic thank-you screen.
       var first = String(ans.name||'').trim().split(/\s+/)[0];
@@ -506,7 +506,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
   if(!cfg.tally) showCalendly('', '', '');
 })(OS_CFG);
 </script>
-<script>(function(){var s=document.createElement("script");s.src="https://tally.so/widgets/embed.js";s.async=true;document.body.appendChild(s);setTimeout(function(){document.querySelectorAll("iframe[data-tally-src]").forEach(function(fr){if(fr.getAttribute("src"))return;var u=new URL(fr.getAttribute("data-tally-src"));new URLSearchParams(location.search).forEach(function(v,k){if(!u.searchParams.has(k))u.searchParams.set(k,v);});u.searchParams.set("originPage",location.pathname);fr.src=u.toString();});},5000);})();</script>
+<script>(function(){var s=document.createElement("script");s.src="https://tally.so/widgets/embed.js";s.async=true;document.body.appendChild(s);setTimeout(function(){document.querySelectorAll("iframe[data-tally-src]").forEach(function(fr){if(fr.getAttribute("src"))return;var u=new URL(fr.getAttribute("data-tally-src"));new URLSearchParams(location.search).forEach(function(v,k){if(!u.searchParams.has(k))u.searchParams.set(k,v);});u.searchParams.set("originPage",location.pathname);fr.removeAttribute("data-tally-src");fr.src=u.toString();});},0);})();</script>
 <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 
 
