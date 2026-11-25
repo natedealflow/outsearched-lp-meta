@@ -410,7 +410,7 @@ footer .fine{font-size:12px;color:var(--sage);max-width:80ch}
     (function go(n){ if(window.Calendly && Calendly.initInlineWidget){ Calendly.initInlineWidget({url: url, parentElement: w}); } else if(n < 100){ setTimeout(function(){ go(n+1); }, 100); } })(0);
   }
   // Step tracking (Nov 23, 2026): custom pixel events when the form loads and on each Tally page, once per page per visit.
-  // Does not touch PageView, Lead or Schedule. Shows where applicants stop: 1 name, 2 phone, 3 email, 4 search stage, 5 liquid capital, 6 $5K/month.
+  // Does not touch PageView, Lead or Schedule. Shows where applicants stop: 1 contact with name, phone and email; 2 search stage; 3 liquid capital; 4 $5K/month.
   var seenSteps = {};
   window.addEventListener('message', function(ev){
     var h = ''; try{ h = new URL(ev.origin).hostname; }catch(e){}
