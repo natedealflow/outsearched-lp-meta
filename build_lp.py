@@ -631,22 +631,40 @@ def page(v):
       if(t.indexOf('your name') > -1) ans.name = val;
       else if(t.indexOf('email') > -1) ans.email = val;
       else if(t.indexOf('phone') > -1) ans.phone = val;
-      else if(t.indexOf('begin your search') > -1) ans.timeline = val;
+      else if(t.indexOf('your search') > -1) ans.timeline = val;
       else if(t.indexOf('liquid capital') > -1) ans.capital = val;
       else if(t.indexOf('5,000') > -1) ans.budget = val;
       else if(t.indexOf('9 months') > -1) ans.months = val;
     }});
     track();
-    var dq = /curious/i.test(ans.timeline||'') || /less than|<|under/i.test(ans.capital||'') || /^no$/i.test(ans.budget||'') || /^no$/i.test(ans.months||'');
+    function qualifyAnswers(a){{
+      var norm = function(s){{ return String(s||'').replace(/[\u2018\u2019]/g, "'").replace(/\\s+/g, ' ').trim().toLowerCase(); }};
+      var tl = norm(a.timeline), cap = norm(a.capital), bud = norm(a.budget), mo = norm(a.months);
+      var capOk = !!cap && !/less than|<|under/.test(cap) && /(?:250|500)\\s*k/.test(cap);
+      var budOk = /^yes\\b/.test(bud);
+      var moOk = !/^no\\b/.test(mo);
+      var tlTier = 0;
+      if(tl.indexOf('just exploring') > -1 || tl.indexOf("i'm just exploring") === 0 || tl.indexOf('exploring the idea') > -1) tlTier = 4;
+      else if(tl.indexOf('actively looking') > -1 || tl.indexOf('already made an offer') > -1) tlTier = 1;
+      else if(tl.indexOf('set my buy box') > -1 || tl.indexOf('ready to start') > -1) tlTier = 2;
+      else if(tl.indexOf('planning to start') > -1 || tl.indexOf('3 to 6 months') > -1) tlTier = 3;
+      else if(tl.indexOf('next 30') > -1 || tl.indexOf('next 60') > -1) tlTier = 1; // transition support while Tally updates
+      if(tlTier === 4 || tlTier === 0) return false;
+      if(!capOk || !budOk || !moOk) return false;
+      if(tlTier === 3) return budOk && capOk;
+      return true;
+    }}
+    var dq = !qualifyAnswers(ans);
     try{{ console.log('[OS] tally answers', JSON.stringify(ans), 'qualified', !dq); }}catch(e){{}}
     // Send the application to GoHighLevel (workflow: Ad Landing Page Applications).
     var label = cfg.source === 'meta' ? 'Meta ads (start.outsearched.com)' : 'Google ads (live.outsearched.com)';
+    var tlLabel = cfg.source === 'meta' ? 'Search stage' : 'Timeline';
     var rec = {{
       source: cfg.source, tags: cfg.source + ' lead, tally application' + (dq ? ', not qualified' : ''),
       full_name: ans.name||'', email: ans.email||'', phone: ans.phone||'',
       timeline: ans.timeline||'', liquid_capital: ans.capital||'', five_k_per_month: ans.budget||'', nine_months: ans.months||'',
       qualified: dq ? 'no' : 'yes',
-      summary: 'Source: ' + label + ' | Timeline: ' + (ans.timeline||'') + ' | Liquid capital: ' + (ans.capital||'') + ' | $5K per month: ' + (ans.budget||'') + ' | 9 months: ' + (ans.months||'') + ' | Qualified: ' + (dq ? 'no' : 'yes') + ' | Campaign: ' + (params.get('utm_campaign')||''),
+      summary: 'Source: ' + label + ' | ' + tlLabel + ': ' + (ans.timeline||'') + ' | Liquid capital: ' + (ans.capital||'') + ' | $5K per month: ' + (ans.budget||'') + ' | 9 months: ' + (ans.months||'') + ' | Qualified: ' + (dq ? 'no' : 'yes') + ' | Campaign: ' + (params.get('utm_campaign')||''),
       utm_source: params.get('utm_source')||'', utm_medium: params.get('utm_medium')||'', utm_campaign: params.get('utm_campaign')||'',
       utm_content: params.get('utm_content')||'', utm_term: params.get('utm_term')||params.get('utm_keyword')||'',
       gclid: params.get('gclid')||'', fbclid: params.get('fbclid')||'', page: location.href.split('#')[0],
