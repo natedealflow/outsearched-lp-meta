@@ -46,7 +46,7 @@ COPY = {
     },
     "meta_b1": {
         "eyebrow": "For buyers making an acquisition in the next 12 to 24 months",
-        "h1": "You have the capital and the buy box. <span class=\"gold\">We get you talking to owners.</span>",
+        "h1": "You have the capital. <span class=\"gold\">We find your business.</span>",
         "sub": "<b>Over $500M in off-market deals sourced.</b> We find, contact and qualify off-market owners who match your buy box, then hand you the conversations. Your deal team goes live in 21 days. No brokers, no auctions, no wasted time.",
         # Shorter subhead on phones so question 1 and its Next button fit on the first screen.
         "sub_short": "<b>Over $500M in off-market deals sourced.</b> We find and qualify off-market owners for your buy box. No brokers, no auctions, no wasted time.",
