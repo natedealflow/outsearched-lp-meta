@@ -629,7 +629,7 @@ def page(v):
     }}
     f.forEach(function(x){{
       var t = (x.title||x.label||'').toLowerCase(), val = text(x);
-      if(t.indexOf('your name') > -1) ans.name = val;
+      if(t.indexOf('your name') > -1 || t.indexOf('full name') > -1) ans.name = val;
       else if(t.indexOf('email') > -1) ans.email = val;
       else if(t.indexOf('phone') > -1) ans.phone = val;
       else if(t.indexOf('your search') > -1) ans.timeline = val;
